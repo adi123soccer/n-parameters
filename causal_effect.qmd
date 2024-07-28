@@ -11,6 +11,9 @@ execute:
 #| message: false
 library(tidyverse)
 library(primer.data)
+library(brms)
+library(gtsummary)
+library(tidybayes)
 ```
 
 ```{r}
@@ -47,6 +50,20 @@ slice_sample(prop = 0.1)
 ```
 
 ```{r}
-"To what extent people are motivated to vote by social pressure, we seek to forecast the causal effect on voter participation of sending postcards in the Texas gubernatorial general election of 2026. Since Texas and Michigan have different people this data is not 100% accurate. "
+"To what extent people are motivated to vote by social pressure, we seek to forecast the causal effect on voter participation of sending postcards in the Texas gubernatorial general election of 2026. Since Texas and Michigan have different people this data is not 100% accurate. We modeled primary_06, a binary 0/1 integer variable indicating whether the respondent voted in the 2006 primary election, and the type of postcard they recieved. People who have been voting in the past are more likely to vote again."
+```
+
+$$y_{i} = \beta_{0} + \beta_{1} age\_z + \beta_{2}male_i + \beta_{3}civic\_duty_i + \\ \beta_{4}hawthorne_i + \beta_{5}self_i + \beta_{6}neighbors_i + \\ \beta_{7}Sometimes\ vote_i + \beta_{8}Always\ vote_i + \\ \beta_{9}civic\_duty_i Sometimes\ vote_i + \beta_{10}hawthorne_i Sometimes\ vote_i + \\ \beta_{11}self_i Sometimes\ vote_i + \beta_{11}neighbors_i Sometimes\ vote_i + \\ \beta_{12}civic\_duty_i Always\ vote_i + \beta_{13}hawthorne_i Always\ vote_i + \\ \beta_{14}self_i Always\ vote_i + \beta_{15}neighbors_i Always\ vote_i + \epsilon_{i}$$
+
+```{r}
+#| label: model
+#| cache: TRUE
+fit_postcard_vote <- brm(formula = voted ~ age_z + sex + treatment + voter_class + treatment*voter_class,
+data = ch10_data, family = gaussian(), refresh = 0, silent = 2, seed = 19)
+```
+
+```{r}
+fit_postcard_vote |>
+tbl_regression(intercept = TRUE, estimate_fun = function(x) style_sigfig(x, digits = 3))
 ```
 
